@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { Filter, User } from '../lib/types';
 import { Check, GoogleG } from './icons';
+import { startLogin } from '../lib/auth';
 
 const FILTERS: { key: Filter; label: string }[] = [
   { key: 'all', label: 'すべて' },
@@ -99,7 +100,7 @@ export function LoginCard() {
   return (
     <section className="login glass" data-testid="login">
       <img className="login-mark" src="/icons/icon.svg" alt="" />
-      <button type="button" className="btn-google" data-testid="google-login" onClick={() => location.assign('/auth/google')}>
+      <button type="button" className="btn-google" data-testid="google-login" onClick={startLogin}>
         <GoogleG />
         Googleでログイン
       </button>

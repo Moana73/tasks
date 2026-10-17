@@ -26,7 +26,7 @@ const result = await build({
   minify: prod,
   sourcemap: false,
   jsx: 'automatic',
-  define: { 'process.env.NODE_ENV': JSON.stringify(prod ? 'production' : 'development') },
+  define: { 'process.env.NODE_ENV': JSON.stringify(prod ? 'production' : 'development'), __DEMO__: 'false' },
   metafile: true,
   logLevel: 'warning',
 });
