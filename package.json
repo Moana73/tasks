@@ -1,0 +1,34 @@
+{
+  "name": "glass-tasks",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "iPhone向けの即メモ・フリック操作タスク管理PWA（Cloudflare Workers + D1 + Workers AI）",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs && wrangler dev",
+    "local": "node scripts/build.mjs && node scripts/local-server.mjs",
+    "test": "node scripts/build.mjs && playwright test",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "db:migrate:local": "wrangler d1 migrations apply glass-tasks --local",
+    "db:migrate:remote": "wrangler d1 migrations apply glass-tasks --remote",
+    "deploy": "node scripts/build.mjs && wrangler deploy"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251001.0",
+    "@playwright/test": "1.56.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "esbuild": "^0.28.2",
+    "sharp": "^0.35.4",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.40.0"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

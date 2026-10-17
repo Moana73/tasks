@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef2fb"/>
+    </linearGradient>
+    <radialGradient id="b1" cx="0.22" cy="0.2" r="0.6">
+      <stop offset="0" stop-color="#9fc3ff" stop-opacity=".75"/><stop offset="1" stop-color="#9fc3ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="b2" cx="0.85" cy="0.9" r="0.6">
+      <stop offset="0" stop-color="#c8b6ff" stop-opacity=".7"/><stop offset="1" stop-color="#c8b6ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".92"/><stop offset="1" stop-color="#ffffff" stop-opacity=".55"/>
+    </linearGradient>
+    <linearGradient id="ck" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b8bff"/><stop offset="1" stop-color="#6b5cff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <rect width="1024" height="1024" fill="url(#b1)"/>
+  <rect width="1024" height="1024" fill="url(#b2)"/>
+  <g transform="translate(0 0) scale(1)">
+    <rect x="212" y="212" width="600" height="600" rx="170" fill="url(#glass)" stroke="#ffffff" stroke-width="10"/>
+    <path d="M372 520 L470 616 L660 418" fill="none" stroke="url(#ck)" stroke-width="64" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

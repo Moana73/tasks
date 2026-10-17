@@ -1,0 +1,6 @@
+# `cp .dev.vars.example .dev.vars` してから `npm run dev`（wrangler dev）で使うローカル用の秘密情報
+GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxx
+# ローカルだけ Google を通さずにログインしたい場合（localhost 以外では自動的に無効）
+# DEV_LOGIN=true
+# Workers AI を呼ばずに動作確認したい場合
+# AI_MOCK=true
