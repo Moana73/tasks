@@ -63,6 +63,7 @@ export function App() {
         secret: 'サーバーにクライアントシークレットが未登録です',
         token: 'クライアントシークレットが一致しません',
         state: 'もう一度ログインしてください',
+        token_invalid_grant: 'もう一度ログインしてください（Googleの確認コードが無効）',
       };
       show(`ログインできませんでした：${reasons[code] ?? code}`, undefined, 8000);
       history.replaceState(null, '', '/');

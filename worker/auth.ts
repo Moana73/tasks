@@ -91,8 +91,15 @@ export async function handleAuth(req: Request, env: Env, url: URL): Promise<Resp
       }),
     });
     if (!tokenRes.ok) {
-      console.error('token_exchange_failed', tokenRes.status, await tokenRes.text());
-      return fail('token');
+      const body = await tokenRes.text();
+      console.error('token_exchange_failed', tokenRes.status, body);
+      let gerr = '';
+      try {
+        gerr = String((JSON.parse(body) as { error?: unknown }).error ?? '');
+      } catch {
+        /* ignore */
+      }
+      return fail(gerr === 'invalid_client' || gerr === 'unauthorized_client' ? 'token' : `token_${gerr.replace(/[^a-z_]/gi, '').slice(0, 40) || tokenRes.status}`);
     }
     const token = (await tokenRes.json()) as { id_token?: string };
     if (!token.id_token) return fail('token');
