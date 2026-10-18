@@ -4,6 +4,8 @@
   "main": "worker/index.ts",
   "compatibility_date": "2025-09-01",
   "observability": { "enabled": true },
+  // ダッシュボードで追加した変数をデプロイのたびに消さない
+  "keep_vars": true,
 
   // フロントエンド（scripts/build.mjs の出力）を同じ Worker から配信
   "assets": {
