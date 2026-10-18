@@ -14,7 +14,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install
+      - name: npm install
+        run: |
+          npm install --no-audit --no-fund > npm.log 2>&1 || {
+            grep -E "npm (error|ERR)" npm.log | head -30 | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1
+          }
       - run: npx playwright install --with-deps chromium
       - run: npm test
       - uses: actions/upload-artifact@v4
