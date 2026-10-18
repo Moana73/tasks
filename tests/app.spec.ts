@@ -121,7 +121,7 @@ test.describe('Google 認証', () => {
       data: { title: 'x', status: 'todo', createdAt: Date.now(), updatedAt: Date.now() },
     });
     expect(put.status()).toBe(403);
-    const foreign = await request.get('/auth/dev-login?u=evil', { headers: { host: 'glass-tasks.example.com' }, maxRedirects: 0 });
+    const foreign = await request.get('/auth/dev-login?u=evil', { headers: { host: 'tasks.example.com' }, maxRedirects: 0 });
     expect(foreign.status()).toBe(404);
   });
 

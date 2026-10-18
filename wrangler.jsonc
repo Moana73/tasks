@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "glass-tasks",
+  "name": "tasks",
   "main": "worker/index.ts",
   "compatibility_date": "2025-09-01",
   "observability": { "enabled": true },
@@ -17,8 +17,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "glass-tasks",
-      // `npx wrangler d1 create glass-tasks` の出力 ID に置き換えてください
+      "database_name": "tasks",
+      // `npx wrangler d1 create tasks` の出力 ID に置き換えてください
       "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
       "migrations_dir": "migrations"
     }

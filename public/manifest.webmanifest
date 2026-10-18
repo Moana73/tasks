@@ -1,6 +1,6 @@
 {
-  "name": "Glass Tasks",
-  "short_name": "Tasks",
+  "name": "tasks",
+  "short_name": "tasks",
   "lang": "ja",
   "start_url": "/",
   "scope": "/",

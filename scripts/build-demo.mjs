@@ -56,12 +56,12 @@ body = body.replace(/<script type="module" src="%APP_JS%"><\/script>/, '');
 const svgIcon = await readFile(join(root, 'public', 'icons', 'icon.svg'), 'utf8');
 const iconData = `data:image/svg+xml;base64,${Buffer.from(svgIcon).toString('base64')}`;
 
-const html = `<title>Glass Tasks</title>
+const html = `<title>tasks</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#ffffff">
 <style>${css}</style>
 ${body.replace(/\/icons\/icon\.svg/g, iconData)}
 <script type="module">${js.replace(/\/icons\/icon\.svg/g, iconData)}</script>
 `;
-await writeFile(join(out, 'glass-tasks.html'), html);
-console.log(`demo: ${(html.length / 1024).toFixed(1)} KB → .local/demo/glass-tasks.html`);
+await writeFile(join(out, 'tasks.html'), html);
+console.log(`demo: ${(html.length / 1024).toFixed(1)} KB → .local/demo/tasks.html`);

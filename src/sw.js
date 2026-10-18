@@ -1,6 +1,6 @@
 // Service Worker：アプリ本体をキャッシュして、2回目以降は電波がなくても一瞬で開く
 const VERSION = '__VERSION__';
-const CACHE = `glass-tasks-${VERSION}`;
+const CACHE = `tasks-${VERSION}`;
 const PRECACHE = __PRECACHE__;
 
 self.addEventListener('install', (event) => {
@@ -16,7 +16,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('glass-tasks-') && k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('tasks-') && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });

@@ -1,4 +1,4 @@
-# Glass Tasks
+# tasks
 
 iPhone のホーム画面から開いた瞬間にメモでき、カードを左右にフリックしてステータスを動かすタスク管理アプリ（PWA）。
 白ベースの Liquid Glass UI、Cloudflare Workers + D1 + Workers AI、Google ログインのみ。
@@ -75,14 +75,14 @@ npm run local                     # http://localhost:8788 （/auth/dev-login で
 3. 「認証情報」→「認証情報を作成」→「OAuth クライアント ID」
    - 種類：**ウェブ アプリケーション**
    - 承認済みのリダイレクト URI：
-     - `https://glass-tasks.<あなたのサブドメイン>.workers.dev/auth/callback`
+     - `https://tasks.<あなたのサブドメイン>.workers.dev/auth/callback`
      - `http://localhost:8787/auth/callback`（`npm run dev` 用）
 4. 表示された **クライアント ID** と **クライアント シークレット** を控える
 
 ### 2. Cloudflare にデプロイ
 ```bash
 npx wrangler login
-npx wrangler d1 create glass-tasks
+npx wrangler d1 create tasks
 #   → 出力された database_id を wrangler.jsonc の "database_id" に貼る
 #   → wrangler.jsonc の GOOGLE_CLIENT_ID に手順1のクライアント ID を貼る
 npm run db:migrate:remote
@@ -90,7 +90,7 @@ npx wrangler secret put GOOGLE_CLIENT_SECRET   # 手順1のシークレットを
 npx wrangler secret put ALLOWED_EMAILS         # 自分専用にする：ログインを許すGmailを入力（複数ならカンマ区切り）
 npm run deploy
 ```
-表示された `https://glass-tasks.<サブドメイン>.workers.dev` を開けば完成。初回デプロイ後に URL が確定したら、手順1のリダイレクト URI と一致しているか確認してください（独自ドメインを付けた場合はそのドメインの `/auth/callback` も追加）。
+表示された `https://tasks.<サブドメイン>.workers.dev` を開けば完成。初回デプロイ後に URL が確定したら、手順1のリダイレクト URI と一致しているか確認してください（独自ドメインを付けた場合はそのドメインの `/auth/callback` も追加）。
 
 ### 3. iPhone に入れる
 Safari で URL を開く → 共有ボタン →「ホーム画面に追加」。
@@ -106,9 +106,9 @@ Workers AI はローカルでもリモート実行（Cloudflare ログインが�
 ### GitHub で公開
 ```bash
 # このフォルダは初期コミット済みの git リポジトリです
-gh repo create glass-tasks --public --source=. --push
+gh repo create tasks --public --source=. --push
 # gh を使わない場合：GitHub で空の公開リポジトリを作成してから
-git remote add origin https://github.com/<you>/glass-tasks.git
+git remote add origin https://github.com/<you>/tasks.git
 git push -u origin main
 ```
 push すると GitHub Actions（`.github/workflows/e2e.yml`）が E2E テストを自動実行します。

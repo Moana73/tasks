@@ -10,7 +10,7 @@ export class HttpError extends Error {
 
 const DB_KEY = 'gt.demo.db';
 const AUTH_KEY = 'gt.demo.auth';
-const DEMO_USER: User = { id: 'demo:you', email: 'demo@glass-tasks.app', name: 'Demo', picture: '' };
+const DEMO_USER: User = { id: 'demo:you', email: 'demo@tasks.app', name: 'Demo', picture: '' };
 
 const mem = new Map<string, string>();
 function get(key: string): string | null {

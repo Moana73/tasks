@@ -136,4 +136,4 @@ createServer(async (req, res) => {
     res.writeHead(500);
     res.end('local server error');
   }
-}).listen(PORT, () => console.log(`glass-tasks local: http://localhost:${PORT}`));
+}).listen(PORT, () => console.log(`tasks local: http://localhost:${PORT}`));
