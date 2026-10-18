@@ -407,19 +407,20 @@ textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user
   left: 50%;
   bottom: calc(env(safe-area-inset-bottom) + 22px);
   transform: translate(-50%, 0);
-  border-radius: 99px;
+  border-radius: 22px;
   padding: 8px 8px 8px 18px;
   display: flex;
   gap: 12px;
   align-items: center;
   font-size: 14px;
   font-weight: 600;
-  white-space: nowrap;
+  width: max-content;
   max-width: calc(100vw - 32px);
+  line-height: 1.45;
   animation: toastIn 0.55s var(--spring) both;
 }
 .toast.out { animation: toastOut 0.3s var(--ease-out) forwards; }
-.toast span { position: relative; z-index: 3; overflow: hidden; text-overflow: ellipsis; }
+.toast span { position: relative; z-index: 3; min-width: 0; }
 .toast:not(:has(button)) { padding-right: 18px; }
 .toast button { position: relative; z-index: 3; height: 32px; padding: 0 14px; border-radius: 99px; background: rgba(10, 122, 255, 0.1); color: var(--accent); font-weight: 700; font-size: 14px; }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 30px) scale(0.9); } }

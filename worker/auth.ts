@@ -68,13 +68,16 @@ export async function handleAuth(req: Request, env: Env, url: URL): Promise<Resp
   // 2) Google からの戻り：state 検証 → code をトークンに交換 → ID トークンを検証 → セッション発行
   if (path === '/auth/callback' && req.method === 'GET') {
     const clearState = cookie(STATE_COOKIE, '', { maxAge: 0, path: '/auth' });
-    const fail = () => redirect('/?auth_error=1', [clearState]);
+    // 失敗理由をコードで画面に返す（どこで止まったか分かるように）
+    const fail = (reason: string) => redirect(`/?auth_error=${encodeURIComponent(reason)}`, [clearState]);
 
+    const gErr = url.searchParams.get('error');
+    if (gErr) return fail(`google_${gErr.replace(/[^a-z_]/gi, '').slice(0, 40)}`);
     const code = url.searchParams.get('code');
     const state = url.searchParams.get('state');
     const expected = parseCookies(req)[STATE_COOKIE];
-    if (!code || !state || !expected || state !== expected) return fail();
-    if (!env.GOOGLE_CLIENT_SECRET) return fail();
+    if (!code || !state || !expected || state !== expected) return fail('state');
+    if (!env.GOOGLE_CLIENT_SECRET) return fail('secret');
 
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
@@ -87,9 +90,12 @@ export async function handleAuth(req: Request, env: Env, url: URL): Promise<Resp
         grant_type: 'authorization_code',
       }),
     });
-    if (!tokenRes.ok) return fail();
+    if (!tokenRes.ok) {
+      console.error('token_exchange_failed', tokenRes.status, await tokenRes.text());
+      return fail('token');
+    }
     const token = (await tokenRes.json()) as { id_token?: string };
-    if (!token.id_token) return fail();
+    if (!token.id_token) return fail('token');
 
     // ID トークンは Google のトークンエンドポイントから TLS で直接受け取ったものなので、
     // 署名検証は省略し、クレーム（iss / aud / exp / email_verified）を検証する（Google の公式ガイドに準拠）。
@@ -97,7 +103,7 @@ export async function handleAuth(req: Request, env: Env, url: URL): Promise<Resp
     try {
       claims = JSON.parse(base64urlDecode(token.id_token.split('.')[1] ?? ''));
     } catch {
-      return fail();
+      return fail('claims');
     }
     const ok =
       GOOGLE_ISSUERS.has(String(claims.iss)) &&
@@ -106,7 +112,7 @@ export async function handleAuth(req: Request, env: Env, url: URL): Promise<Resp
       claims.exp * 1000 > Date.now() &&
       typeof claims.sub === 'string' &&
       claims.email_verified === true;
-    if (!ok) return fail();
+    if (!ok) return fail('claims');
 
     // 自分専用：ALLOWED_EMAILS（カンマ区切り）が設定されていれば、そのアドレス以外はログインさせない
     const allowed = (env.ALLOWED_EMAILS ?? '')

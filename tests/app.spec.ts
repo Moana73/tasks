@@ -109,7 +109,7 @@ test.describe('Google 認証', () => {
   test('state が一致しないコールバックは拒否され、ログインされない', async ({ page }) => {
     await page.goto('/auth/callback?code=fake&state=forged');
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByTestId('toast')).toHaveText('ログインできませんでした');
+    await expect(page.getByTestId('toast')).toHaveText('ログインできませんでした：もう一度ログインしてください');
     await expect(page.getByTestId('login')).toBeVisible();
     const me = await page.request.get('/api/me');
     expect(me.status()).toBe(401);

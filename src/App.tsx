@@ -56,7 +56,15 @@ export function App() {
     void store.boot();
     const params = new URLSearchParams(location.search);
     if (params.has('auth_error')) {
-      show(params.get('auth_error') === 'denied' ? 'このアカウントでは使えません' : 'ログインできませんでした');
+      const code = params.get('auth_error') ?? '';
+      const reasons: Record<string, string> = {
+        denied: 'このアカウントでは使えません',
+        google_access_denied: 'Googleでアクセスが拒否されました',
+        secret: 'サーバーにクライアントシークレットが未登録です',
+        token: 'クライアントシークレットが一致しません',
+        state: 'もう一度ログインしてください',
+      };
+      show(`ログインできませんでした：${reasons[code] ?? code}`, undefined, 8000);
       history.replaceState(null, '', '/');
     }
     const resync = () => document.visibilityState === 'visible' && void store.sync(true);
