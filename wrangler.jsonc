@@ -27,7 +27,7 @@
 
   "vars": {
     // Google Cloud Console で作成した OAuth クライアント ID（公開情報なので vars でOK）
-    "GOOGLE_CLIENT_ID": "REPLACE_WITH_YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+    "GOOGLE_CLIENT_ID": "830844111740-ger904k2b10a1odosvp7c1p1s6l6agl1.apps.googleusercontent.com",
     "AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
   }
   // GOOGLE_CLIENT_SECRET は `npx wrangler secret put GOOGLE_CLIENT_SECRET` で登録（ここには書かない）
