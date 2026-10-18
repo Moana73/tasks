@@ -18,8 +18,7 @@
     {
       "binding": "DB",
       "database_name": "tasks",
-      // `npx wrangler d1 create tasks` の出力 ID に置き換えてください
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+      "database_id": "d58d205b-aa85-416b-b5ed-b946cffe2724",
       "migrations_dir": "migrations"
     }
   ],
