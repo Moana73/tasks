@@ -28,4 +28,10 @@ export const api = {
   ai: (text: string, mode: 'split' | 'breakdown') =>
     call<{ titles: string[] }>('/api/ai/tasks', { method: 'POST', body: JSON.stringify({ text, mode }) }),
   logout: () => call<{ ok: true }>('/auth/logout', { method: 'POST' }),
+  checklist: () => call<{ checks: Record<string, { checked: boolean; updatedAt: number }> }>('/api/checklist'),
+  checklistPut: (id: string, checked: boolean, updatedAt: number) =>
+    call<{ ok: true }>(`/api/checklist/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify({ checked, updatedAt }),
+    }),
 };
