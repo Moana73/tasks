@@ -56,7 +56,7 @@ export function App() {
     void store.boot();
     const params = new URLSearchParams(location.search);
     if (params.has('auth_error')) {
-      show('ログインできませんでした');
+      show(params.get('auth_error') === 'denied' ? 'このアカウントでは使えません' : 'ログインできませんでした');
       history.replaceState(null, '', '/');
     }
     const resync = () => document.visibilityState === 'visible' && void store.sync(true);

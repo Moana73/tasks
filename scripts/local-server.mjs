@@ -102,6 +102,7 @@ const env = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
   DEV_LOGIN: process.env.DEV_LOGIN ?? 'true',
   AI_MOCK: process.env.AI_MOCK ?? 'true',
+  ALLOWED_EMAILS: process.env.ALLOWED_EMAILS ?? '',
 };
 
 // --- HTTP サーバー ------------------------------------------------------------

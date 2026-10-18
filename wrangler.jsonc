@@ -32,4 +32,5 @@
     "AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
   }
   // GOOGLE_CLIENT_SECRET は `npx wrangler secret put GOOGLE_CLIENT_SECRET` で登録（ここには書かない）
+  // 自分専用にするなら `npx wrangler secret put ALLOWED_EMAILS` で自分の Gmail を登録（公開リポジトリに載せないため secret にする）
 }

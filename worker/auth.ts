@@ -108,6 +108,15 @@ export async function handleAuth(req: Request, env: Env, url: URL): Promise<Resp
       claims.email_verified === true;
     if (!ok) return fail();
 
+    // 自分専用：ALLOWED_EMAILS（カンマ区切り）が設定されていれば、そのアドレス以外はログインさせない
+    const allowed = (env.ALLOWED_EMAILS ?? '')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+    if (allowed.length && !allowed.includes(String(claims.email ?? '').toLowerCase())) {
+      return redirect('/?auth_error=denied', [clearState]);
+    }
+
     const sessionCookie = await createSession(env, {
       id: `google:${claims.sub}`,
       email: String(claims.email ?? ''),

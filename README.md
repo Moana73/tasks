@@ -87,6 +87,7 @@ npx wrangler d1 create glass-tasks
 #   → wrangler.jsonc の GOOGLE_CLIENT_ID に手順1のクライアント ID を貼る
 npm run db:migrate:remote
 npx wrangler secret put GOOGLE_CLIENT_SECRET   # 手順1のシークレットを貼る
+npx wrangler secret put ALLOWED_EMAILS         # 自分専用にする：ログインを許すGmailを入力（複数ならカンマ区切り）
 npm run deploy
 ```
 表示された `https://glass-tasks.<サブドメイン>.workers.dev` を開けば完成。初回デプロイ後に URL が確定したら、手順1のリダイレクト URI と一致しているか確認してください（独自ドメインを付けた場合はそのドメインの `/auth/callback` も追加）。

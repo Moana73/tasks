@@ -33,6 +33,8 @@ export interface Env {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET?: string;
   AI_MODEL?: string;
+  /** ログインを許可するメールアドレス（カンマ区切り）。未設定なら Google でログインできる人は全員可 */
+  ALLOWED_EMAILS?: string;
   /** ローカルのテスト専用。"true" かつ localhost のときだけ /auth/dev-login が有効 */
   DEV_LOGIN?: string;
   /** ローカルのテスト専用。"true" なら Workers AI を呼ばず決定的な結果を返す */
