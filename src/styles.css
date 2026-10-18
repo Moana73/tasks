@@ -363,6 +363,8 @@ textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user
 /* ---------- ボトムシート ---------- */
 .backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(20, 24, 40, 0.16); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.35s var(--ease-out); }
 .backdrop.open { opacity: 1; }
+/* 閉じるアニメーション中は下の画面を触れるようにする */
+.backdrop:not(.open), .sheet:not(.open) { pointer-events: none; }
 .sheet {
   position: fixed;
   z-index: 51;
