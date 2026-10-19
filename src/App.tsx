@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import type { CSSProperties } from 'react';
 import { store } from './lib/store';
 import { api } from './lib/api';
 import type { Filter, Status, Task } from './lib/types';
@@ -8,6 +9,8 @@ import { TaskSheet } from './components/TaskSheet';
 import { Sheet } from './components/Sheet';
 import { Avatar, Empty, ListSkeleton, LoginCard, Tabs, TabsSkeleton, Toast, type ToastData } from './components/Chrome';
 import { Logout } from './components/icons';
+import { flyText, haptic } from './lib/motion';
+import { usePullToRefresh, useScrolled } from './lib/gestures';
 
 const useStore = () => useSyncExternalStore(store.subscribe, store.get);
 
@@ -46,6 +49,18 @@ export function App() {
   const { toast, show, hide } = useToast();
   const filterRef = useRef(filter);
   filterRef.current = filter;
+  // タブを右へ切り替えたら一覧は右から、左なら左から入ってくる
+  const [slide, setSlide] = useState(0);
+  const changeFilter = useCallback((f: Filter) => {
+    const order: Filter[] = ['all', 'todo', 'doing', 'done'];
+    setSlide(Math.sign(order.indexOf(f) - order.indexOf(filterRef.current)));
+    setFilter(f);
+  }, []);
+  // AI が作ったばかりのタスクに一度だけ光を走らせる
+  const [glow, setGlow] = useState<ReadonlySet<string>>(new Set());
+  const headerRef = useRef<HTMLElement>(null);
+  useScrolled(headerRef);
+  const pull = usePullToRefresh(() => store.sync(true), !!s.user && openId === null && !menu);
 
   // 静的スケルトン（#boot）から React の画面へ、描画前に差し替える
   useLayoutEffect(() => {
@@ -102,17 +117,27 @@ export function App() {
   const onOpen = useCallback((task: Task) => setOpenId(task.id), []);
 
   const addMemo = useCallback(
-    (text: string) => {
-      store.add(text);
-      if (filterRef.current !== 'all' && filterRef.current !== 'todo') setFilter('all');
+    (text: string, from: DOMRect | null) => {
+      const switching = filterRef.current !== 'all' && filterRef.current !== 'todo';
+      if (switching) changeFilter('all');
+      const task = store.add(text);
+      if (from && !switching && window.scrollY < 400) flyText(from, task.title, task.id);
     },
-    [],
+    [changeFilter],
   );
 
   const addMany = (titles: string[]) => {
+    if (filterRef.current !== 'all' && filterRef.current !== 'todo') changeFilter('all');
     // 先頭のタスクが一番上に来るよう、逆順に少しずつ追加して順番に現れる演出にする
-    [...titles].reverse().forEach((t, i) => window.setTimeout(() => store.add(t), i * 90));
-    if (filterRef.current !== 'all' && filterRef.current !== 'todo') setFilter('all');
+    const ids: string[] = [];
+    [...titles].reverse().forEach((t, i) =>
+      window.setTimeout(() => {
+        ids.push(store.add(t).id);
+        setGlow(new Set(ids));
+        if (i === titles.length - 1) window.setTimeout(() => setGlow(new Set()), 2200);
+      }, i * 110),
+    );
+    haptic();
   };
 
   const runAi = async (text: string, mode: 'split' | 'breakdown'): Promise<string[] | null> => {
@@ -176,11 +201,11 @@ export function App() {
   return (
     <>
       <div className="app" data-testid="app" data-ready={s.ready ? 'true' : 'false'}>
-        <header className="top">
+        <header className="top" ref={headerRef}>
           <div className="bar">
             {s.ready ? (
               <>
-                <Tabs value={filter} counts={counts} onChange={setFilter} />
+                <Tabs value={filter} counts={counts} onChange={changeFilter} />
                 <Avatar user={s.user} onClick={() => setMenu(true)} />
               </>
             ) : (
@@ -190,12 +215,13 @@ export function App() {
           <Composer ref={composer} thinking={thinking} onSubmit={addMemo} onAi={onAi} />
         </header>
 
-        <main className="list" data-testid="list">
+        {pull.node}
+        <main className="list" data-testid="list" style={{ '--slide': slide } as CSSProperties}>
           {!s.ready ? (
             <ListSkeleton />
           ) : (
             <>
-              <TaskList key={filter} tasks={visible} now={now} reveal onStatus={onStatus} onOpen={onOpen} />
+              <TaskList key={filter} tasks={visible} now={now} reveal glow={glow} onStatus={onStatus} onOpen={onOpen} />
               {visible.length === 0 && s.user && <Empty />}
               {!s.user && <LoginCard />}
             </>

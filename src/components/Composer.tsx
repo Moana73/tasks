@@ -8,7 +8,8 @@ export interface ComposerHandle {
 
 interface Props {
   thinking: boolean;
-  onSubmit(text: string): void;
+  /** from: 入力欄の位置（文字が飛んでいく演出の出発点） */
+  onSubmit(text: string, from: DOMRect | null): void;
   onAi(text: string): Promise<boolean>;
 }
 
@@ -65,7 +66,7 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer({ th
   const submit = () => {
     const text = value.trim();
     if (!text || thinking) return;
-    onSubmit(text);
+    onSubmit(text, input.current?.getBoundingClientRect() ?? null);
     setValue('');
     input.current?.focus({ preventScroll: true });
   };

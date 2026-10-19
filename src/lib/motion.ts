@@ -54,3 +54,102 @@ export function relTime(ts: number, nowMs = Date.now()): string {
   const dt = new Date(ts);
   return `${dt.getMonth() + 1}/${dt.getDate()}`;
 }
+
+// ---------------------------------------------------------------------------
+// 完了したときに状態アイコンから弾ける光の粒
+// ---------------------------------------------------------------------------
+const BURST_COLORS = ['#2fb455', '#5ad27a', '#0a7aff', '#6b5cff', '#ffb340', '#3fd5b0'];
+
+export function burst(x: number, y: number) {
+  if (reducedMotion() || typeof document === 'undefined') return;
+  const layer = document.createElement('div');
+  layer.className = 'fx-layer';
+  layer.style.left = `${x}px`;
+  layer.style.top = `${y}px`;
+  document.body.appendChild(layer);
+
+  const ring = document.createElement('i');
+  ring.className = 'fx-ring';
+  layer.appendChild(ring);
+  ring.animate(
+    [
+      { transform: 'translate(-50%,-50%) scale(.4)', opacity: 0.9 },
+      { transform: 'translate(-50%,-50%) scale(2.6)', opacity: 0 },
+    ],
+    { duration: 620, easing: EASE_OUT, fill: 'forwards' },
+  );
+
+  const N = 18;
+  let longest = 620;
+  for (let i = 0; i < N; i++) {
+    const p = document.createElement('i');
+    p.className = i % 3 === 0 ? 'fx-dot fx-star' : 'fx-dot';
+    p.style.background = BURST_COLORS[i % BURST_COLORS.length]!;
+    layer.appendChild(p);
+    const angle = (i / N) * Math.PI * 2 + Math.random() * 0.5;
+    const dist = 34 + Math.random() * 40;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist;
+    const d = 560 + Math.random() * 260;
+    longest = Math.max(longest, d);
+    p.animate(
+      [
+        { transform: 'translate(-50%,-50%) translate(0,0) scale(1)', opacity: 1 },
+        { transform: `translate(-50%,-50%) translate(${dx * 0.8}px,${dy * 0.8}px) scale(1.1)`, opacity: 1, offset: 0.55 },
+        { transform: `translate(-50%,-50%) translate(${dx}px,${dy + 10}px) scale(0)`, opacity: 0 },
+      ],
+      { duration: d, easing: 'cubic-bezier(.15,.8,.3,1)', fill: 'forwards' },
+    );
+  }
+  window.setTimeout(() => layer.remove(), longest + 60);
+}
+
+// ---------------------------------------------------------------------------
+// 入力欄の文字が、追加されたカードのタイトル位置へ飛んでいく
+// ---------------------------------------------------------------------------
+/** 飛行中のタスク ID（そのカードは登場演出を控えめにし、タイトルを着地まで隠す） */
+export const flying = new Set<string>();
+
+export function flyText(from: DOMRect, text: string, id: string) {
+  if (reducedMotion() || typeof document === 'undefined') return;
+  flying.add(id);
+  const ghost = document.createElement('div');
+  ghost.className = 'fx-fly';
+  ghost.textContent = text;
+  ghost.style.left = `${from.left}px`;
+  ghost.style.top = `${from.top + 11}px`;
+  ghost.style.width = `${from.width}px`;
+  document.body.appendChild(ghost);
+
+  const done = (target: HTMLElement | null) => {
+    flying.delete(id);
+    ghost.remove();
+    if (target) {
+      target.style.opacity = '';
+      target.animate([{ opacity: 0.4 }, { opacity: 1 }], { duration: 160 });
+    }
+  };
+
+  // カードが描画されるのを 2 フレーム待ってから着地点を測る
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      const target = document.querySelector<HTMLElement>(`[data-id="${CSS.escape(id)}"] .task-title`);
+      if (!target) return done(null);
+      target.style.opacity = '0';
+      const to = target.getBoundingClientRect();
+      const dx = to.left - from.left;
+      const dy = to.top - (from.top + 11);
+      const s = 16 / 17;
+      const a = ghost.animate(
+        [
+          { transform: 'translate(0,0) scale(1)', opacity: 1, filter: 'blur(0)' },
+          { transform: `translate(${dx * 0.55}px,${dy * 0.5 - 18}px) scale(1.04)`, opacity: 1, filter: 'blur(.4px)', offset: 0.45 },
+          { transform: `translate(${dx}px,${dy}px) scale(${s})`, opacity: 1, filter: 'blur(0)' },
+        ],
+        { duration: 520, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' },
+      );
+      a.onfinish = () => done(target);
+      a.oncancel = () => done(target);
+    }),
+  );
+}

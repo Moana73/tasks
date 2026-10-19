@@ -165,7 +165,7 @@ textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user
   border-radius: var(--r-pill);
   background: linear-gradient(180deg, #fff, rgba(255, 255, 255, 0.86));
   box-shadow: 0 3px 10px -2px rgba(40, 52, 110, 0.18), inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
-  transition: transform 0.55s var(--spring), width 0.55s var(--spring);
+  transform-origin: center;
 }
 
 .avatar {
@@ -247,7 +247,7 @@ textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user
 .task-wrap.enter { animation: enter 0.6s var(--spring) both; }
 .reveal { animation: reveal 0.7s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 45ms); }
 @keyframes enter { from { opacity: 0; transform: translateY(-14px) scale(0.94); filter: blur(6px); } }
-@keyframes reveal { from { opacity: 0; transform: translateY(16px) scale(0.98); filter: blur(4px); } }
+@keyframes reveal { from { opacity: 0; transform: translate(calc(var(--slide, 0) * 36px), calc((1 - var(--slide, 0) * var(--slide, 0)) * 16px)) scale(0.98); filter: blur(4px); } }
 
 .track {
   position: absolute;
@@ -282,7 +282,7 @@ textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user
   --glass-fill: linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.84));
   box-shadow: var(--glass-shadow), 0 20px 44px -18px rgba(40, 52, 110, 0.38);
 }
-.task.pressing { transform: scale(0.985); transition: transform 0.25s var(--ease-out); }
+.task.pressing { transform: perspective(700px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(0.985); transition: transform 0.25s var(--ease-out); }
 .task.pulse { animation: pulse 0.9s var(--ease-out); }
 @keyframes pulse {
   0% { box-shadow: var(--glass-shadow), 0 0 0 0 var(--pulse-color, rgba(10, 122, 255, 0.45)); }
@@ -433,4 +433,132 @@ textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   .blob { animation: none; }
+}
+
+
+/* ============================================================
+   追加のアニメーション
+   ============================================================ */
+
+/* 件数がくるっと入れ替わる */
+.count { display: inline-flex; overflow: hidden; height: 1.3em; align-items: center; }
+.roll { display: inline-block; }
+.roll-up { animation: rollUp 0.45s var(--spring) both; }
+.roll-down { animation: rollDown 0.45s var(--spring) both; }
+@keyframes rollUp { from { transform: translateY(90%); opacity: 0; } }
+@keyframes rollDown { from { transform: translateY(-90%); opacity: 0; } }
+
+/* スクロールするとヘッダーのガラスが濃くなり、入力欄が浮き上がる */
+.top { transition: background 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out); }
+.top.scrolled {
+  background: linear-gradient(to bottom, rgba(251, 251, 253, 0.97), rgba(251, 251, 253, 0.86) 75%, rgba(251, 251, 253, 0));
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+}
+.top .composer { transition: box-shadow 0.4s var(--ease-out), transform 0.4s var(--spring); }
+.top.scrolled .composer:not(:focus-within) { box-shadow: var(--glass-shadow), 0 16px 36px -16px rgba(40, 52, 110, 0.32); }
+.top.scrolled .tabs { transform: scale(0.98); }
+.tabs { transition: transform 0.4s var(--spring); }
+
+/* 状態アイコンが行き先を予告する：進む方向はリングが満ち、戻る方向はくるっと回る */
+.status svg { transition: transform 0.18s var(--ease-out); transform: rotate(calc(var(--pb, 0) * -120deg)) scale(calc(1 + var(--pf, 0) * 0.14)); }
+.status .preview {
+  fill: none;
+  stroke: var(--next-color, transparent);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-dasharray: 69.12;
+  stroke-dashoffset: calc(69.12px * (1 - var(--pf, 0)));
+  transform: rotate(-90deg);
+  transform-origin: 13px 13px;
+}
+
+/* 完了の光の粒 */
+.fx-layer { position: fixed; z-index: 80; width: 0; height: 0; pointer-events: none; }
+.fx-ring { position: absolute; left: 0; top: 0; width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid rgba(47, 180, 85, 0.75); box-shadow: 0 0 12px rgba(47, 180, 85, 0.35); }
+.fx-dot { position: absolute; left: 0; top: 0; width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 6px currentColor; }
+.fx-star { width: 12px; height: 12px; border-radius: 1px; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+
+/* 入力した文字がカードへ飛んでいく */
+.fx-fly {
+  position: fixed;
+  z-index: 70;
+  pointer-events: none;
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  transform-origin: 0 0;
+  text-shadow: 0 6px 18px rgba(10, 122, 255, 0.25);
+  will-change: transform;
+}
+.task-wrap.enter-fly { animation: enterFly 0.5s var(--ease-out) both; }
+.task-wrap.enter-fly .task { animation: enterFlyCard 0.55s var(--spring) both; }
+@keyframes enterFly { from { opacity: 0; } }
+@keyframes enterFlyCard { from { transform: scale(0.96); } }
+
+/* AI が作ったタスクに光が一度走る */
+.ai-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ai-sheen::before {
+  content: '';
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(100deg, transparent 35%, rgba(107, 92, 255, 0.22) 45%, rgba(43, 140, 255, 0.28) 50%, rgba(63, 213, 176, 0.2) 55%, transparent 65%);
+  animation: sheen 1.4s 0.15s var(--ease-out) both;
+}
+.ai-sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1.5px rgba(107, 92, 255, 0.45);
+  animation: sheenRing 1.8s var(--ease-out) both;
+}
+@keyframes sheen { from { transform: translateX(-60%); } to { transform: translateX(60%); } }
+@keyframes sheenRing { 0% { opacity: 0; } 20% { opacity: 1; } 100% { opacity: 0; } }
+
+/* 引っ張って更新：ガラスのしずくが伸び、離すと回る */
+.list { transform: translateY(var(--pull, 0px)); transition: transform 0.5s var(--spring); }
+html[data-pull='pulling'] .list { transition: none; }
+.pull { position: relative; z-index: 5; height: 0; display: flex; justify-content: center; pointer-events: none; }
+.pull-drop {
+  position: absolute;
+  top: calc(var(--pull, 0px) / 2 - 22px);
+  width: 40px;
+  height: calc(40px + (1 - var(--pull-p, 0)) * 10px);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  opacity: var(--pull-p, 0);
+  transform: scale(calc(0.5 + var(--pull-p, 0) * 0.5));
+  transition: top 0.5s var(--spring), opacity 0.3s, transform 0.5s var(--spring), height 0.4s var(--spring);
+}
+html[data-pull='pulling'] .pull-drop { transition: none; }
+.pull-drop svg { position: relative; z-index: 3; width: 22px; height: 22px; transform: rotate(calc(var(--pull-p, 0) * 270deg)); }
+.pull-track { fill: none; stroke: rgba(10, 122, 255, 0.15); stroke-width: 2.4; }
+.pull-arc {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 50.3;
+  stroke-dashoffset: calc(50.3px * (1 - var(--pull-p, 0) * 0.8));
+  transform: rotate(-90deg);
+  transform-origin: 12px 12px;
+}
+.pull-refreshing .pull-drop svg { animation: spin3 0.8s linear infinite; }
+.pull-refreshing .pull-arc { stroke-dashoffset: 34; }
+@keyframes spin3 { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .list { transform: none; }
 }

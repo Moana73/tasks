@@ -1,7 +1,7 @@
-import { memo, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, PointerEvent as RPointerEvent } from 'react';
 import { stepStatus, STATUS_LABEL, type Status, type Task } from '../lib/types';
-import { dur, EASE_OUT, haptic, relTime, SPRING } from '../lib/motion';
+import { burst, dur, EASE_OUT, flying, haptic, relTime, SPRING } from '../lib/motion';
 import { Back, Check, Play, StatusIcon } from './icons';
 
 const COLOR: Record<Status, string> = { todo: '#8e8e93', doing: '#0a7aff', done: '#2fb455' };
@@ -15,6 +15,8 @@ interface Props {
   task: Task;
   exiting: boolean;
   enter: boolean;
+  /** AI が作ったばかりのタスク（光が一度走る） */
+  glow?: boolean;
   revealIndex: number | null;
   now: number;
   /** 戻り値 true＝このカードは一覧から外れる（フィルタ中など） */
@@ -48,6 +50,30 @@ export const TaskItem = memo(function TaskItem(p: Props) {
   const moved = useRef(false);
   const lastDir = useRef<0 | 1 | -1>(0);
   const [target, setTarget] = useState<{ dir: 1 | -1; to: Status | null } | null>(null);
+  const [flyIn] = useState(() => flying.has(task.id));
+  const prevStatus = useRef(task.status);
+  const bursted = useRef(false);
+
+  const iconCenter = (shiftX = 0) => {
+    const icon = card.current?.querySelector('.status');
+    if (!icon) return null;
+    const r = icon.getBoundingClientRect();
+    return { x: r.left + r.width / 2 - shiftX, y: r.top + r.height / 2 };
+  };
+
+  // 詳細シートなどで「完了」になったときも光の粒を出す
+  useEffect(() => {
+    const was = prevStatus.current;
+    prevStatus.current = task.status;
+    if (was === task.status || task.status !== 'done' || p.exiting) return;
+    if (bursted.current) {
+      bursted.current = false;
+      return;
+    }
+    const c = iconCenter();
+    if (c) burst(c.x, c.y);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task.status]);
 
   const setRef = (el: HTMLDivElement | null) => {
     wrap.current = el;
@@ -100,6 +126,10 @@ export const TaskItem = memo(function TaskItem(p: Props) {
     t.style.opacity = to ? String(Math.min(1, Math.abs(offset) / 36)) : '0';
     t.style.setProperty('--p', String(prog));
     t.classList.toggle('armed', !!to && prog >= 1);
+    // 状態アイコンが行き先を予告する（進む：リングが満ちる／戻る：くるっと回る）
+    c.style.setProperty('--pf', to && dir === 1 ? String(prog) : '0');
+    c.style.setProperty('--pb', to && dir === -1 ? String(prog) : '0');
+    if (to) c.style.setProperty('--next-color', COLOR[to]);
     if (!target || target.dir !== dir || target.to !== to) setTarget({ dir, to });
   };
 
@@ -108,6 +138,8 @@ export const TaskItem = memo(function TaskItem(p: Props) {
     const t = track.current;
     if (!c) return;
     c.style.transform = '';
+    c.style.setProperty('--pf', '0');
+    c.style.setProperty('--pb', '0');
     c.animate([{ transform: `translate3d(${from}px,0,0) rotate(${from * 0.008}deg)` }, { transform: 'translate3d(0,0,0)' }], {
       duration: dur(560),
       easing: SPRING,
@@ -132,6 +164,14 @@ export const TaskItem = memo(function TaskItem(p: Props) {
       fill: 'forwards',
     });
     a.onfinish = () => {
+      c.style.setProperty('--pf', '0');
+      c.style.setProperty('--pb', '0');
+      if (to === 'done') {
+        // 元の位置のアイコンから弾けさせる
+        const pt = iconCenter(out);
+        if (pt) burst(pt.x, pt.y);
+        bursted.current = true;
+      }
       const leaving = p.onStatus(task, to, dir);
       if (leaving) return; // 退場アニメーションに引き継ぐ
       c.animate([{ transform: `translate3d(${out}px,0,0)` }, { transform: 'translate3d(0,0,0)' }], { duration: dur(620), easing: SPRING });
@@ -158,8 +198,28 @@ export const TaskItem = memo(function TaskItem(p: Props) {
     c.style.setProperty('--lit', on ? '1' : '0');
   };
 
+  /** 押している指の位置に合わせて、カードがわずかに傾く */
+  const tilt = (e: RPointerEvent) => {
+    const c = card.current;
+    if (!c) return;
+    const r = c.getBoundingClientRect();
+    const nx = (e.clientX - r.left) / r.width - 0.5;
+    const ny = (e.clientY - r.top) / r.height - 0.5;
+    c.style.setProperty('--ry', `${(nx * 7).toFixed(2)}deg`);
+    c.style.setProperty('--rx', `${(-ny * 9).toFixed(2)}deg`);
+  };
+
+  const release = () => {
+    const c = card.current;
+    if (!c || !c.classList.contains('pressing')) return;
+    const from = getComputedStyle(c).transform;
+    c.classList.remove('pressing');
+    if (from && from !== 'none') c.animate([{ transform: from }, { transform: 'none' }], { duration: dur(520), easing: SPRING });
+  };
+
   const onPointerDown = (e: RPointerEvent<HTMLDivElement>) => {
     if (p.exiting || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    tilt(e);
     drag.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, dx: 0, decided: false, active: false, lastX: e.clientX, lastT: e.timeStamp, v: 0 };
     moved.current = false;
     light(e, true);
@@ -172,7 +232,10 @@ export const TaskItem = memo(function TaskItem(p: Props) {
     const dx = e.clientX - d.x0;
     const dy = e.clientY - d.y0;
     if (!d.decided) {
-      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+        tilt(e);
+        return;
+      }
       d.decided = true;
       d.active = Math.abs(dx) > Math.abs(dy) * 1.1;
       moved.current = true;
@@ -199,6 +262,7 @@ export const TaskItem = memo(function TaskItem(p: Props) {
 
   const end = (e: RPointerEvent<HTMLDivElement>, cancelled: boolean) => {
     const d = drag.current;
+    if (!d?.active && !cancelled) release();
     card.current?.classList.remove('pressing', 'dragging');
     light(e, false);
     drag.current = null;
@@ -216,7 +280,7 @@ export const TaskItem = memo(function TaskItem(p: Props) {
 
   const t = target;
   const trackColor = t?.to ? COLOR[t.to] : COLOR.todo;
-  const wrapClass = `task-wrap${p.enter ? ' enter' : ''}${p.revealIndex !== null ? ' reveal' : ''}`;
+  const wrapClass = `task-wrap${p.enter ? (flyIn ? ' enter-fly' : ' enter') : ''}${p.revealIndex !== null ? ' reveal' : ''}`;
 
   return (
     <div
@@ -265,6 +329,7 @@ export const TaskItem = memo(function TaskItem(p: Props) {
           }
         }}
       >
+        {p.glow && <span className="ai-sheen" aria-hidden="true" />}
         <StatusIcon status={task.status} />
         <div className="task-body">
           <span className="task-title" data-testid="task-title">

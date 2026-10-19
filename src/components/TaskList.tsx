@@ -13,6 +13,8 @@ interface Props {
   now: number;
   /** 一覧が初めて表示されたとき、カードを順番にふわっと出す */
   reveal: boolean;
+  /** AI が作ったばかりのタスク ID */
+  glow?: ReadonlySet<string>;
   onStatus(task: Task, next: Status, dir: 1 | -1): boolean;
   onOpen(task: Task): void;
 }
@@ -27,7 +29,7 @@ function mergeItems(prev: Item[], next: Task[]): Item[] {
   return out;
 }
 
-export function TaskList({ tasks, now, reveal, onStatus, onOpen }: Props) {
+export function TaskList({ tasks, now, reveal, glow, onStatus, onOpen }: Props) {
   const [items, setItems] = useState<Item[]>(() => tasks.map((task) => ({ task, exiting: false })));
   const [prevTasks, setPrevTasks] = useState(tasks);
   const initialIds = useRef(new Set(tasks.map((t) => t.id)));
@@ -78,6 +80,7 @@ export function TaskList({ tasks, now, reveal, onStatus, onOpen }: Props) {
           key={task.id}
           task={task}
           exiting={exiting}
+          glow={glow?.has(task.id)}
           enter={nowMs - (firstSeen.current.get(task.id) ?? 0) < 700}
           revealIndex={reveal && initialIds.current.has(task.id) ? Math.min(i, 12) : null}
           now={now}

@@ -4,6 +4,7 @@ import type { CSSProperties } from 'react';
 import type { Filter, User } from '../lib/types';
 import { Check, GoogleG } from './icons';
 import { startLogin } from '../lib/auth';
+import { dur, haptic } from '../lib/motion';
 
 const FILTERS: { key: Filter; label: string }[] = [
   { key: 'all', label: 'すべて' },
@@ -12,26 +13,63 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: 'done', label: '完了' },
 ];
 
+/** 件数が変わると数字がくるっと入れ替わる */
+function Count({ value, testid }: { value: number; testid: string }) {
+  const prev = useRef(value);
+  const dir = value >= prev.current ? 'up' : 'down';
+  const changed = value !== prev.current;
+  prev.current = value;
+  return (
+    <span className="count" data-testid={testid}>
+      {value ? (
+        <span key={value} className={changed ? `roll roll-${dir}` : 'roll'}>
+          {value}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 export function Tabs({ value, counts, onChange }: { value: Filter; counts: Record<Filter, number>; onChange(f: Filter): void }) {
   const box = useRef<HTMLDivElement>(null);
+  const indEl = useRef<HTMLSpanElement>(null);
+  const last = useRef<{ x: number; w: number } | null>(null);
   const [ind, setInd] = useState<{ x: number; w: number } | null>(null);
 
   useLayoutEffect(() => {
     const el = box.current;
     if (!el) return;
-    const measure = () => {
+    const measure = (animate: boolean) => {
       const btn = el.querySelector<HTMLElement>(`[data-filter="${value}"]`);
-      if (btn) setInd({ x: btn.offsetLeft, w: btn.offsetWidth });
+      if (!btn) return;
+      const next = { x: btn.offsetLeft, w: btn.offsetWidth };
+      const from = last.current;
+      last.current = next;
+      setInd(next);
+      const node = indEl.current;
+      if (!animate || !from || !node || (from.x === next.x && from.w === next.w)) return;
+      // 液体のように伸びて移動し、縮んで止まる
+      const left = Math.min(from.x, next.x);
+      const span = Math.max(from.x + from.w, next.x + next.w) - left;
+      node.animate(
+        [
+          { transform: `translateX(${from.x}px) scaleY(1)`, width: `${from.w}px` },
+          { transform: `translateX(${left}px) scaleY(.86)`, width: `${span}px`, offset: 0.42 },
+          { transform: `translateX(${next.x}px) scaleY(1.04)`, width: `${next.w}px`, offset: 0.78 },
+          { transform: `translateX(${next.x}px) scaleY(1)`, width: `${next.w}px` },
+        ],
+        { duration: dur(560), easing: 'cubic-bezier(.3,.7,.2,1)' },
+      );
     };
-    measure();
-    const ro = new ResizeObserver(measure);
+    measure(true);
+    const ro = new ResizeObserver(() => measure(false));
     ro.observe(el);
     return () => ro.disconnect();
   }, [value]);
 
   return (
     <div className="tabs glass" role="tablist" ref={box} data-testid="tabs">
-      {ind && <span className="tab-indicator" style={{ width: ind.w, transform: `translateX(${ind.x}px)` } as CSSProperties} />}
+      {ind && <span ref={indEl} className="tab-indicator" style={{ width: ind.w, transform: `translateX(${ind.x}px)` } as CSSProperties} />}
       {FILTERS.map((f) => (
         <button
           key={f.key}
@@ -41,12 +79,13 @@ export function Tabs({ value, counts, onChange }: { value: Filter; counts: Recor
           data-filter={f.key}
           data-testid={`tab-${f.key}`}
           aria-selected={value === f.key}
-          onClick={() => onChange(f.key)}
+          onClick={() => {
+            if (f.key !== value) haptic();
+            onChange(f.key);
+          }}
         >
           {f.label}
-          <span className="count" data-testid={`count-${f.key}`}>
-            {counts[f.key] || ''}
-          </span>
+          <Count value={counts[f.key]} testid={`count-${f.key}`} />
         </button>
       ))}
     </div>

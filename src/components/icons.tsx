@@ -66,6 +66,7 @@ export function StatusIcon({ status }: { status: 'todo' | 'doing' | 'done' }) {
       <svg viewBox="0 0 26 26">
         {status !== 'done' && <circle className="ring" cx="13" cy="13" r="11" />}
         {status === 'doing' && <circle className="arc" cx="13" cy="13" r="11" />}
+        {status !== 'done' && <circle className="preview" cx="13" cy="13" r="11" />}
         {status === 'done' && (
           <>
             <circle className="fill" cx="13" cy="13" r="12" />
