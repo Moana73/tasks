@@ -293,7 +293,7 @@ export const SECTIONS: ChecklistSection[] = [
   },
   {
     id: 'stay',
-    title: '働き始めてから',
+    title: '働き始め',
     items: items([
       {
         id: 'stay-work',
