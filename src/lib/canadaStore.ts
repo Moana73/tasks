@@ -5,8 +5,8 @@ import { api, HttpError } from './api';
 import type { User } from './types';
 import { DEFAULT_CHECKED } from './canadaChecklist';
 
-type Check = { checked: boolean; updatedAt: number };
-type Op = { id: string; checked: boolean; ts: number };
+type Check = { checked: boolean; note: string; updatedAt: number };
+type Op = { id: string; checked: boolean; note: string; ts: number };
 
 export interface CanadaState {
   user: User | null;
@@ -67,7 +67,7 @@ async function flush() {
   while (outbox.length) {
     const op = outbox[0]!;
     try {
-      await api.checklistPut(op.id, op.checked, op.ts);
+      await api.checklistPut(op.id, op.checked, op.note ?? '', op.ts);
     } catch (e) {
       if (!(e instanceof HttpError) || e.status === 401 || e.status >= 500) throw e;
     }
@@ -76,9 +76,10 @@ async function flush() {
   }
 }
 
-function merge(server: Record<string, Check>): Record<string, Check> {
-  const out: Record<string, Check> = { ...server };
-  for (const op of outbox) out[op.id] = { checked: op.checked, updatedAt: op.ts };
+function merge(server: Record<string, { checked: boolean; note?: string; updatedAt: number }>): Record<string, Check> {
+  const out: Record<string, Check> = {};
+  for (const [id, c] of Object.entries(server)) out[id] = { checked: c.checked, note: c.note ?? '', updatedAt: c.updatedAt };
+  for (const op of outbox) out[op.id] = { checked: op.checked, note: op.note ?? '', updatedAt: op.ts };
   return out;
 }
 
@@ -96,6 +97,11 @@ export const canadaStore = {
 
   isChecked(id: string): boolean {
     return state.checks[id]?.checked ?? DEFAULT_CHECKED[id] ?? false;
+  },
+
+  /** 完了にしたときなどに書いた結果メモ */
+  noteOf(id: string): string {
+    return state.checks[id]?.note ?? '';
   },
 
   async boot() {
@@ -139,11 +145,14 @@ export const canadaStore = {
     return running;
   },
 
-  toggle(id: string) {
-    const next = !canadaStore.isChecked(id);
+  /** チェック状態・結果メモを更新（変わっていなければ何もしない） */
+  update(id: string, patch: { checked?: boolean; note?: string }) {
+    const checked = patch.checked ?? canadaStore.isChecked(id);
+    const note = (patch.note ?? canadaStore.noteOf(id)).slice(0, 2000);
+    if (checked === canadaStore.isChecked(id) && note === canadaStore.noteOf(id)) return;
     const ts = now();
-    set({ checks: { ...state.checks, [id]: { checked: next, updatedAt: ts } } });
-    enqueue({ id, checked: next, ts });
+    set({ checks: { ...state.checks, [id]: { checked, note, updatedAt: ts } } });
+    enqueue({ id, checked, note, ts });
     void canadaStore.sync();
   },
 

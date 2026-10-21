@@ -19,6 +19,7 @@ interface TaskRow {
 interface ChecklistRow {
   item_id: string;
   checked: number;
+  note: string;
   updated_at: number;
 }
 
@@ -76,11 +77,11 @@ async function handleApi(req: Request, env: Env, url: URL): Promise<Response> {
   }
 
   if (path === '/api/checklist' && req.method === 'GET') {
-    const { results } = await env.DB.prepare('SELECT item_id, checked, updated_at FROM checklist_checks WHERE user_id = ?')
+    const { results } = await env.DB.prepare('SELECT item_id, checked, note, updated_at FROM checklist_checks WHERE user_id = ?')
       .bind(user.id)
       .all<ChecklistRow>();
-    const checks: Record<string, { checked: boolean; updatedAt: number }> = {};
-    for (const r of results) checks[r.item_id] = { checked: !!r.checked, updatedAt: r.updated_at };
+    const checks: Record<string, { checked: boolean; note: string; updatedAt: number }> = {};
+    for (const r of results) checks[r.item_id] = { checked: !!r.checked, note: r.note ?? '', updatedAt: r.updated_at };
     return json({ checks });
   }
 
@@ -140,15 +141,16 @@ async function putTask(req: Request, env: Env, user: User, id: string): Promise<
 async function putChecklistItem(req: Request, env: Env, user: User, id: string): Promise<Response> {
   const body = await readJson(req);
   if (!body || typeof body.checked !== 'boolean' || !isTs(body.updatedAt)) return json({ error: 'invalid' }, 400);
+  const note = typeof body.note === 'string' ? body.note.slice(0, 2000) : '';
   // カナダ準備チェックリストの項目は本人のものしかないので Last-Write-Wins だけでよい（他人の ID と衝突しない）
   await env.DB.prepare(
-    `INSERT INTO checklist_checks (user_id, item_id, checked, updated_at)
-     VALUES (?, ?, ?, ?)
+    `INSERT INTO checklist_checks (user_id, item_id, checked, note, updated_at)
+     VALUES (?, ?, ?, ?, ?)
      ON CONFLICT(user_id, item_id) DO UPDATE SET
-       checked = excluded.checked, updated_at = excluded.updated_at
+       checked = excluded.checked, note = excluded.note, updated_at = excluded.updated_at
      WHERE excluded.updated_at >= checklist_checks.updated_at`,
   )
-    .bind(user.id, id, body.checked ? 1 : 0, body.updatedAt)
+    .bind(user.id, id, body.checked ? 1 : 0, note, body.updatedAt)
     .run();
   return json({ ok: true });
 }
