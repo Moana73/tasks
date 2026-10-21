@@ -77,7 +77,10 @@ function Section({
   return (
     <section className="cl-section glass" data-open={open ? 'true' : 'false'} data-testid={`cl-section-${section.id}`}>
       <button type="button" className="cl-section-head" onClick={onToggleOpen} aria-expanded={open}>
-        <div className="cl-section-title">{section.title}</div>
+        <div className="cl-section-name">
+          <span className="cl-section-kicker">{section.kicker}</span>
+          <span className="cl-section-title">{section.title}</span>
+        </div>
         <span className="cl-count" data-complete={complete ? 'true' : 'false'}>
           {done}/{section.items.length}
         </span>

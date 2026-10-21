@@ -22,6 +22,8 @@ export interface ChecklistItem {
 
 export interface ChecklistSection {
   id: string;
+  /** 見出しの上に出す英語の小見出し（旅の段階） */
+  kicker: string;
   title: string;
   items: ChecklistItem[];
 }
@@ -72,7 +74,8 @@ const L = {
 export const SECTIONS: ChecklistSection[] = [
   {
     id: 'entry',
-    title: '入国の条件をそろえる',
+    kicker: 'Boarding Pass',
+    title: '入国の切符をそろえる',
     items: items([
       {
         id: 'entry-flight',
@@ -128,7 +131,8 @@ export const SECTIONS: ChecklistSection[] = [
   },
   {
     id: 'job-tax',
-    title: '退職・税金',
+    kicker: 'Clear the Desk',
+    title: '会社と税金を片づける',
     items: items([
       {
         id: 'tax-resign',
@@ -164,7 +168,8 @@ export const SECTIONS: ChecklistSection[] = [
   },
   {
     id: 'city',
-    title: '役所の手続き',
+    kicker: 'Check Out Japan',
+    title: '日本の住所をたたむ',
     items: items([
       {
         id: 'city-move-out',
@@ -211,7 +216,8 @@ export const SECTIONS: ChecklistSection[] = [
   },
   {
     id: 'departure',
-    title: '出発・入国の日',
+    kicker: 'Take Off',
+    title: '飛び立つ日',
     items: items([
       {
         id: 'dep-carry',
@@ -237,7 +243,8 @@ export const SECTIONS: ChecklistSection[] = [
   },
   {
     id: 'after',
-    title: '到着後すぐ',
+    kicker: 'Landing',
+    title: 'カナダに着いたら',
     items: items([
       {
         id: 'after-sin',
@@ -287,7 +294,8 @@ export const SECTIONS: ChecklistSection[] = [
   },
   {
     id: 'stay',
-    title: '働き始めてから',
+    kicker: 'Live & Work',
+    title: 'カナダで働く',
     items: items([
       {
         id: 'stay-work',
