@@ -45,6 +45,12 @@ export const Back = () => (
   </svg>
 );
 
+export const Plane = () => (
+  <svg {...base}>
+    <path d="M10.5 20.5 12 17l1.2-4.3L21 8.4c.9-.5.9-1.8 0-2.3a2 2 0 0 0-1.9 0l-7.9 4.5L3 9.5l2 2.3 4.4-.9-2.4 4L5 16l1 1.5 2.7-1.2L10.5 20.5Z" />
+  </svg>
+);
+
 export const Logout = () => (
   <svg {...base}>
     <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4" />

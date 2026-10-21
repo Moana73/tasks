@@ -8,7 +8,7 @@ import { TaskList } from './components/TaskList';
 import { TaskSheet } from './components/TaskSheet';
 import { Sheet } from './components/Sheet';
 import { Avatar, Empty, ListSkeleton, LoginCard, Tabs, TabsSkeleton, Toast, type ToastData } from './components/Chrome';
-import { Logout } from './components/icons';
+import { Logout, Plane } from './components/icons';
 import { flyText, haptic } from './lib/motion';
 import { usePullToRefresh, useScrolled } from './lib/gestures';
 
@@ -243,6 +243,10 @@ export function App() {
         <div className="menu-email" data-testid="menu-email">
           {s.user?.email}
         </div>
+        <button type="button" className="btn btn-plain" data-testid="menu-canada" onClick={() => location.assign('/canada')}>
+          <Plane />
+          カナダワーホリ準備
+        </button>
         <button
           type="button"
           className="btn btn-plain"

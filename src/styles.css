@@ -51,6 +51,7 @@ body {
   user-select: none;
 }
 button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+a.btn, a.icon-btn { color: inherit; text-decoration: none; }
 textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user-select: text; }
 #boot[hidden] { display: none; }
 
@@ -427,6 +428,86 @@ textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user
 .toast button { position: relative; z-index: 3; height: 32px; padding: 0 14px; border-radius: 99px; background: rgba(10, 122, 255, 0.1); color: var(--accent); font-weight: 700; font-size: 14px; }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 30px) scale(0.9); } }
 @keyframes toastOut { to { opacity: 0; transform: translate(-50%, 20px) scale(0.95); } }
+
+/* ---------- カナダワーホリ準備チェックリスト ---------- */
+.cl-head { display: flex; align-items: center; gap: 10px; }
+.cl-head .icon-btn { background: rgba(118, 118, 128, 0.1); flex: none; }
+.cl-head .icon-btn svg { position: relative; z-index: 3; }
+.cl-title { flex: 1; min-width: 0; font-size: 17px; font-weight: 700; }
+.cl-sub { font-size: 12px; color: var(--text-2); font-weight: 500; margin-top: 1px; }
+
+.cl-hero { margin-top: 14px; border-radius: var(--r-card); padding: 20px; display: flex; align-items: center; gap: 18px; animation: reveal 0.7s var(--ease-out) both; }
+.cl-ring { flex: none; width: 76px; height: 76px; position: relative; z-index: 3; }
+.cl-ring svg { width: 76px; height: 76px; transform: rotate(-90deg); }
+.cl-ring-track { fill: none; stroke: rgba(118, 118, 128, 0.16); stroke-width: 7; }
+.cl-ring-bar { fill: none; stroke: var(--accent); stroke-width: 7; stroke-linecap: round; transition: stroke-dasharray 0.6s var(--spring); }
+.cl-ring-label { position: absolute; inset: 0; display: grid; place-items: center; font-size: 15px; font-weight: 700; transform: none; }
+.cl-hero-body { position: relative; z-index: 3; flex: 1; min-width: 0; }
+.cl-days { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.cl-days span { font-size: 14px; font-weight: 600; color: var(--text-2); margin-left: 4px; }
+.cl-phase { margin-top: 3px; font-size: 13px; color: var(--text-2); }
+
+.cl-next { margin-top: 12px; border-radius: var(--r-card); padding: 6px 4px; animation: reveal 0.7s var(--ease-out) both; animation-delay: 60ms; }
+.cl-card-title { position: relative; z-index: 3; font-size: 12px; font-weight: 700; color: var(--text-2); padding: 10px 14px 4px; }
+
+/* 結果メモ：書いたメモをまとめて見る */
+.cl-memos { margin-top: 12px; border-radius: var(--r-card); padding: 6px 4px 8px; animation: reveal 0.7s var(--ease-out) both; animation-delay: 90ms; }
+.cl-memos-empty { position: relative; z-index: 3; margin: 0; padding: 4px 14px 8px; font-size: 13px; line-height: 19px; color: var(--text-3); }
+.cl-memo { position: relative; z-index: 3; width: 100%; display: grid; gap: 2px; padding: 9px 14px; text-align: left; border-radius: 14px; transition: background 0.2s; }
+.cl-memo:active { background: rgba(118, 118, 128, 0.08); }
+.cl-memo + .cl-memo { border-top: 1px solid rgba(60, 60, 67, 0.07); }
+.cl-memo-label { font-size: 12px; font-weight: 600; color: var(--text-2); }
+.cl-memo-text { font-size: 15px; line-height: 21px; white-space: pre-wrap; word-break: break-word; -webkit-user-select: text; user-select: text; }
+
+.cl-section { margin-top: 12px; border-radius: var(--r-card); overflow: hidden; animation: reveal 0.7s var(--ease-out) both; }
+.cl-section-head { position: relative; z-index: 3; width: 100%; display: flex; align-items: center; gap: 10px; padding: 15px 16px; text-align: left; }
+.cl-section-title { flex: 1; min-width: 0; font-size: 15px; font-weight: 700; }
+.cl-count { flex: none; font-size: 12px; font-weight: 600; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.cl-count[data-complete='true'] { color: var(--done); }
+.cl-chevron { flex: none; width: 18px; height: 18px; color: var(--text-3); transition: transform 0.4s var(--spring); }
+.cl-section[data-open='true'] .cl-chevron { transform: rotate(180deg); }
+.cl-section-body { position: relative; z-index: 3; padding: 0 14px 12px; display: grid; gap: 2px; }
+
+.cl-item { display: flex; align-items: center; gap: 12px; padding: 10px 2px; border-radius: 14px; cursor: pointer; transition: background 0.2s; }
+.cl-item:active { background: rgba(118, 118, 128, 0.08); }
+.cl-check { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--todo); opacity: 0.55; transition: border-color 0.3s, background 0.3s, opacity 0.3s, transform 0.3s var(--spring); }
+.cl-check svg { width: 14px; height: 14px; color: #fff; opacity: 0; transform: scale(0.5); transition: opacity 0.2s, transform 0.3s var(--spring); }
+.cl-item[data-done='true'] .cl-check { border-color: var(--done); background: var(--done); opacity: 1; transform: scale(1.04); }
+.cl-item[data-done='true'] .cl-check svg { opacity: 1; transform: scale(1); }
+.cl-item-body { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.cl-item-label { font-size: 15px; line-height: 21px; word-break: break-word; transition: color 0.3s; }
+.cl-item-note { font-size: 12px; line-height: 17px; color: var(--accent-ink, var(--accent)); white-space: pre-wrap; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cl-item[data-done='true'] .cl-item-label { color: var(--text-3); text-decoration: line-through; text-decoration-color: var(--text-3); text-decoration-thickness: 1.3px; }
+
+.cl-sources { margin-top: 8px; padding: 10px 2px 2px; border-top: 1px solid rgba(60, 60, 67, 0.08); display: grid; gap: 6px; }
+.cl-sources-title { font-size: 11px; font-weight: 700; color: var(--text-3); letter-spacing: 0.04em; }
+.cl-source { font-size: 12px; line-height: 17px; color: var(--accent-ink, var(--accent)); text-decoration: none; word-break: break-word; -webkit-user-select: text; user-select: text; }
+.cl-source::after { content: ' ↗'; }
+.cl-source:active { opacity: 0.6; }
+/* 項目のシート */
+.cl-item-more { flex: none; align-self: center; width: 18px; height: 18px; color: var(--text-3); }
+.cl-item-more svg { width: 18px; height: 18px; display: block; }
+.cl-how { max-height: 46dvh; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 12px 14px; border-radius: 16px; background: rgba(118, 118, 128, 0.08); }
+.cl-how-title { font-size: 12px; font-weight: 700; color: var(--text-2); margin-bottom: 6px; }
+.cl-how-steps { margin: 0; padding-left: 1.3em; display: grid; gap: 7px; font-size: 14px; line-height: 21px; -webkit-user-select: text; user-select: text; }
+.cl-how-steps li::marker { color: var(--accent-ink, var(--accent)); font-weight: 700; }
+.cl-how .cl-sources { margin-top: 12px; border-top-color: rgba(60, 60, 67, 0.1); }
+.cl-sheet-head { display: grid; gap: 3px; padding: 0 2px; }
+.cl-sheet-section { font-size: 12px; font-weight: 600; color: var(--text-3); }
+.cl-sheet-label { font-size: 17px; line-height: 24px; font-weight: 700; word-break: break-word; }
+.btn.cl-btn-primary { color: #fff; background: var(--accent); box-shadow: 0 6px 16px -8px var(--accent); }
+.btn.cl-btn-primary svg { width: 18px; height: 18px; }
+.cl-foot { margin: 18px 4px 0; font-size: 12px; line-height: 18px; color: var(--text-3); text-align: center; }
+
+/* カナダ準備ページだけ背景と強調色をオレンジにする（tasks 本体は青・紫・緑のまま） */
+:root[data-page='canada'] { --bg: #fff0e1; --accent: #f07316; --accent-ink: #b8530a; --done: #f07316; }
+:root[data-page='canada'] .bg { background: #fff3e6; }
+:root[data-page='canada'] .b1 { background: radial-gradient(circle, #ffa04d 0%, rgba(255, 160, 77, 0.42) 40%, transparent 68%); }
+:root[data-page='canada'] .b2 { background: radial-gradient(circle, #ffc46b 0%, rgba(255, 196, 107, 0.42) 40%, transparent 68%); }
+:root[data-page='canada'] .b3 { background: radial-gradient(circle, #ff8a5c 0%, rgba(255, 138, 92, 0.4) 40%, transparent 68%); }
+:root[data-page='canada'] .top { background: linear-gradient(to bottom, rgba(255, 243, 230, 0.92) 0%, rgba(255, 243, 230, 0.72) 70%, rgba(255, 243, 230, 0)); }
+:root[data-page='canada'] .top.scrolled { background: linear-gradient(to bottom, rgba(255, 243, 230, 0.97), rgba(255, 243, 230, 0.86) 75%, rgba(255, 243, 230, 0)); }
+:root[data-page='canada'] .field:focus { box-shadow: 0 0 0 3px rgba(240, 115, 22, 0.22); }
 
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 

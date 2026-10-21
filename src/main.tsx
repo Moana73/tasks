@@ -1,7 +1,9 @@
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { CanadaChecklist } from './components/CanadaChecklist';
 
-createRoot(document.getElementById('root')!).render(<App />);
+const Root = location.pathname === '/canada' ? CanadaChecklist : App;
+createRoot(document.getElementById('root')!).render(<Root />);
 
 declare const __DEMO__: boolean;
 
