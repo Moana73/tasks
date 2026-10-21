@@ -72,7 +72,7 @@ const L = {
 export const SECTIONS: ChecklistSection[] = [
   {
     id: 'entry',
-    title: '入国の条件をそろえる',
+    title: '入国の条件',
     items: items([
       {
         id: 'entry-flight',
