@@ -231,7 +231,7 @@ export const SECTIONS: ChecklistSection[] = [
   },
   {
     id: 'after',
-    title: '到着後すぐ',
+    title: '到着',
     items: items([
       {
         id: 'after-sin',
