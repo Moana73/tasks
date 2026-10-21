@@ -472,13 +472,13 @@ textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user
 
 .cl-sources { margin-top: 8px; padding: 10px 2px 2px; border-top: 1px solid rgba(60, 60, 67, 0.08); display: grid; gap: 6px; }
 .cl-sources-title { font-size: 11px; font-weight: 700; color: var(--text-3); letter-spacing: 0.04em; }
-.cl-source { font-size: 12px; line-height: 17px; color: var(--accent); text-decoration: none; word-break: break-word; -webkit-user-select: text; user-select: text; }
+.cl-source { font-size: 12px; line-height: 17px; color: var(--accent-ink, var(--accent)); text-decoration: none; word-break: break-word; -webkit-user-select: text; user-select: text; }
 .cl-source::after { content: ' ↗'; }
 .cl-source:active { opacity: 0.6; }
 .cl-foot { margin: 18px 4px 0; font-size: 12px; line-height: 18px; color: var(--text-3); text-align: center; }
 
-/* カナダ準備ページだけ背景をオレンジにする（tasks 本体は青・紫・緑のまま） */
-:root[data-page='canada'] { --bg: #fff0e1; }
+/* カナダ準備ページだけ背景と強調色をオレンジにする（tasks 本体は青・紫・緑のまま） */
+:root[data-page='canada'] { --bg: #fff0e1; --accent: #f07316; --accent-ink: #b8530a; --done: #f07316; }
 :root[data-page='canada'] .bg { background: #fff3e6; }
 :root[data-page='canada'] .b1 { background: radial-gradient(circle, #ffa04d 0%, rgba(255, 160, 77, 0.42) 40%, transparent 68%); }
 :root[data-page='canada'] .b2 { background: radial-gradient(circle, #ffc46b 0%, rgba(255, 196, 107, 0.42) 40%, transparent 68%); }
