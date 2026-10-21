@@ -67,6 +67,8 @@ const L = {
   pensionCanada: { label: '日本年金機構｜協定相手国別の注意事項（カナダ）', url: 'https://www.nenkin.go.jp/service/shaho-kyotei/kunibetsu/notice/canada.html' },
   zairyu: { label: '外務省｜在留届（ORRネット）', url: 'https://www.ezairyu.mofa.go.jp/RRnet/index.html' },
   zairyuFaq: { label: '外務省｜在留届 よくある質問', url: 'https://www.ezairyu.mofa.go.jp/RRnet/faq.html' },
+  jpcanada: { label: 'JPカナダ', url: 'https://www.jpcanada.com/' },
+  rentalFraud: { label: '在モントリオール日本国総領事館｜賃貸詐欺への注意（PDF）', url: 'https://www.montreal.ca.emb-japan.go.jp/pdf/20230531_fraud.pdf' },
 } satisfies Record<string, Source>;
 
 export const SECTIONS: ChecklistSection[] = [
@@ -262,6 +264,18 @@ export const SECTIONS: ChecklistSection[] = [
           '仕事が決まっていなくても、入金するお金がなくても口座は作れる。',
         ],
         links: [L.bank],
+      },
+      {
+        id: 'after-jpcanada',
+        label: 'JPカナダを活用する',
+        how: [
+          'JPカナダ（jpcanada.com）は、カナダに住む・住みたい日本人向けの情報サイト兼掲示板。バンクーバーが中心で、掲示板はバンクーバー・ビクトリア・トロント・ウィスラー・その他の都市に分かれている。',
+          '住まい：「賃貸・シェア」でシェアハウスや部屋を探す。',
+          '仕事：「仕事・求人」で日本人歓迎の求人を探す。',
+          '生活：「売ります買います」で家具や生活用品を安くそろえる。「ワーホリの広場」で同じワーホリの人に質問できる。',
+          '部屋探しは、契約前にお金を振り込まない。ビデオ通話でもいいので必ず内覧してから決め、内覧のためにデポジットを求められたら詐欺を疑う。パスポートの画像は送らない。',
+        ],
+        links: [L.jpcanada, L.rentalFraud],
       },
       {
         id: 'after-health',
