@@ -103,6 +103,9 @@ export function CanadaChecklist() {
   const s = useCanadaStore();
   useLayoutEffect(() => {
     document.getElementById('boot')?.remove();
+    // このページだけ背景をオレンジにする（styles.css の :root[data-page='canada']）
+    document.documentElement.dataset.page = 'canada';
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#fff3e6');
     void canadaStore.boot();
   }, []);
 
