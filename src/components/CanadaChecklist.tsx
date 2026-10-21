@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { canadaStore } from '../lib/canadaStore';
-import { ALL_ITEMS, SECTIONS, currentSectionId, daysUntilDeparture } from '../lib/canadaChecklist';
+import { ALL_ITEMS, SECTIONS, SOURCES_CHECKED_ON, daysUntilDeparture, type ChecklistSection } from '../lib/canadaChecklist';
 import { LoginCard, ListSkeleton } from './Chrome';
 import { Back, Check } from './icons';
 
@@ -14,13 +14,9 @@ function Chevron() {
   );
 }
 
-function fmtRange(start: string | null, end: string | null): string {
-  if (!start || !end) return '';
-  const f = (iso: string) => {
-    const [, m, d] = iso.split('-');
-    return `${Number(m)}/${Number(d)}`;
-  };
-  return start === end ? f(start) : `${f(start)} 〜 ${f(end)}`;
+function fmtDate(iso: string): string {
+  const [y, m, d] = iso.split('-');
+  return `${Number(y)}年${Number(m)}月${Number(d)}日`;
 }
 
 function Item({ id, label, done, onToggle }: { id: string; label: string; done: boolean; onToggle(id: string): void }) {
@@ -52,28 +48,23 @@ function Item({ id, label, done, onToggle }: { id: string; label: string; done: 
 function Section({
   section,
   checkedOf,
-  current,
   open,
   onToggleOpen,
   onToggleItem,
 }: {
-  section: (typeof SECTIONS)[number];
+  section: ChecklistSection;
   checkedOf(id: string): boolean;
-  current: boolean;
   open: boolean;
   onToggleOpen(): void;
   onToggleItem(id: string): void;
 }) {
   const done = section.items.filter((i) => checkedOf(i.id)).length;
+  const complete = done === section.items.length;
   return (
     <section className="cl-section glass" data-open={open ? 'true' : 'false'} data-testid={`cl-section-${section.id}`}>
-      <button type="button" className="cl-section-head" data-current={current ? 'true' : 'false'} onClick={onToggleOpen} aria-expanded={open}>
-        <div className="cl-section-title">
-          {section.title}
-          {section.start && <span className="cl-section-range">{fmtRange(section.start, section.end)}</span>}
-        </div>
-        {current && <span className="cl-badge">現在</span>}
-        <span className="cl-count">
+      <button type="button" className="cl-section-head" onClick={onToggleOpen} aria-expanded={open}>
+        <div className="cl-section-title">{section.title}</div>
+        <span className="cl-count" data-complete={complete ? 'true' : 'false'}>
           {done}/{section.items.length}
         </span>
         <Chevron />
@@ -92,6 +83,16 @@ function Section({
           {section.items.map((it) => (
             <Item key={it.id} id={it.id} label={it.label} done={checkedOf(it.id)} onToggle={onToggleItem} />
           ))}
+          {section.sources && section.sources.length > 0 && (
+            <div className="cl-sources">
+              <div className="cl-sources-title">出典</div>
+              {section.sources.map((s) => (
+                <a key={s.url} className="cl-source" href={s.url} target="_blank" rel="noopener noreferrer">
+                  {s.label}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>
@@ -105,25 +106,25 @@ export function CanadaChecklist() {
     void canadaStore.boot();
   }, []);
 
-  const today = useMemo(() => new Date(), []);
-  const curId = useMemo(() => currentSectionId(today), [today]);
-  const days = useMemo(() => daysUntilDeparture(today), [today]);
+  const days = useMemo(() => daysUntilDeparture(new Date()), []);
   const checkedOf = (id: string) => canadaStore.isChecked(id);
 
+  // 初期状態：まだ終わっていない項目がある最初のセクションだけ開く
+  const firstOpenId = useMemo(
+    () => SECTIONS.find((sec) => sec.items.some((i) => !canadaStore.isChecked(i.id)))?.id ?? null,
+    // 読み込み完了時点の状態で決める
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [s.ready],
+  );
   const [openIds, setOpenIds] = useState<Set<string> | null>(null);
-  const effectiveOpen = useMemo(() => {
-    if (openIds) return openIds;
-    // 初期状態：常設セクションと「現在」のセクションだけ開く
-    const curIdx = SECTIONS.findIndex((sec) => sec.id === curId);
-    return new Set(SECTIONS.filter((sec, i) => sec.id === 'prep-status' || i === curIdx).map((sec) => sec.id));
-  }, [openIds, curId]);
+  const effectiveOpen = openIds ?? new Set(firstOpenId ? [firstOpenId] : []);
 
   const toggleOpen = (id: string) => {
-    setOpenIds((prev) => {
-      const base = new Set(prev ?? effectiveOpen);
-      if (base.has(id)) base.delete(id);
-      else base.add(id);
-      return base;
+    setOpenIds(() => {
+      const next = new Set(effectiveOpen);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
     });
   };
 
@@ -134,8 +135,6 @@ export function CanadaChecklist() {
   const C = 2 * Math.PI * R;
 
   const nextUp = useMemo(() => ALL_ITEMS.filter(({ item }) => !checkedOf(item.id)).slice(0, 5), [s]);
-
-  const currentSection = SECTIONS.find((sec) => sec.id === curId);
 
   return (
     <div className="app" data-testid="canada-app">
@@ -172,7 +171,7 @@ export function CanadaChecklist() {
                   <span>日後に入国</span>
                 </div>
                 <div className="cl-phase">
-                  いま：{currentSection?.title ?? ''}（{totalDone}/{totalAll} 完了）
+                  {totalDone}/{totalAll} 完了
                 </div>
               </div>
             </div>
@@ -191,12 +190,15 @@ export function CanadaChecklist() {
                 key={sec.id}
                 section={sec}
                 checkedOf={checkedOf}
-                current={sec.id === curId}
                 open={effectiveOpen.has(sec.id)}
                 onToggleOpen={() => toggleOpen(sec.id)}
                 onToggleItem={canadaStore.toggle}
               />
             ))}
+
+            <p className="cl-foot">
+              補足説明は {fmtDate(SOURCES_CHECKED_ON)} 時点の公式情報です。制度は変わるので、手続きの前に出典で最新の内容を確認してください。
+            </p>
           </>
         )}
       </main>

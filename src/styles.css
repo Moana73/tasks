@@ -452,16 +452,14 @@ textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user
 
 .cl-section { margin-top: 12px; border-radius: var(--r-card); overflow: hidden; animation: reveal 0.7s var(--ease-out) both; }
 .cl-section-head { position: relative; z-index: 3; width: 100%; display: flex; align-items: center; gap: 10px; padding: 15px 16px; text-align: left; }
-.cl-section-head[data-current='true'] { background: linear-gradient(90deg, rgba(10, 122, 255, 0.08), transparent 70%); }
 .cl-section-title { flex: 1; min-width: 0; font-size: 15px; font-weight: 700; }
-.cl-section-range { display: block; font-size: 12px; font-weight: 500; color: var(--text-3); margin-top: 1px; }
-.cl-badge { flex: none; font-size: 10px; font-weight: 700; color: var(--accent); background: rgba(10, 122, 255, 0.1); border-radius: 99px; padding: 3px 9px; }
 .cl-count { flex: none; font-size: 12px; font-weight: 600; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.cl-count[data-complete='true'] { color: var(--done); }
 .cl-chevron { flex: none; width: 18px; height: 18px; color: var(--text-3); transition: transform 0.4s var(--spring); }
 .cl-section[data-open='true'] .cl-chevron { transform: rotate(180deg); }
 .cl-section-body { position: relative; z-index: 3; padding: 0 14px 12px; display: grid; gap: 2px; }
 .cl-notes { padding: 0 2px 10px; display: grid; gap: 8px; }
-.cl-note { font-size: 13px; line-height: 20px; color: var(--text-2); background: rgba(118, 118, 128, 0.08); border-radius: 14px; padding: 10px 12px; }
+.cl-note { margin: 0; font-size: 13px; line-height: 20px; color: var(--text-2); background: rgba(118, 118, 128, 0.08); border-radius: 14px; padding: 10px 12px; }
 
 .cl-item { display: flex; align-items: center; gap: 12px; padding: 10px 2px; border-radius: 14px; cursor: pointer; transition: background 0.2s; }
 .cl-item:active { background: rgba(118, 118, 128, 0.08); }
@@ -471,6 +469,13 @@ textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user
 .cl-item[data-done='true'] .cl-check svg { opacity: 1; transform: scale(1); }
 .cl-item-label { flex: 1; min-width: 0; font-size: 15px; line-height: 21px; word-break: break-word; transition: color 0.3s; }
 .cl-item[data-done='true'] .cl-item-label { color: var(--text-3); text-decoration: line-through; text-decoration-color: var(--text-3); text-decoration-thickness: 1.3px; }
+
+.cl-sources { margin-top: 8px; padding: 10px 2px 2px; border-top: 1px solid rgba(60, 60, 67, 0.08); display: grid; gap: 6px; }
+.cl-sources-title { font-size: 11px; font-weight: 700; color: var(--text-3); letter-spacing: 0.04em; }
+.cl-source { font-size: 12px; line-height: 17px; color: var(--accent); text-decoration: none; word-break: break-word; -webkit-user-select: text; user-select: text; }
+.cl-source::after { content: ' ↗'; }
+.cl-source:active { opacity: 0.6; }
+.cl-foot { margin: 18px 4px 0; font-size: 12px; line-height: 18px; color: var(--text-3); text-align: center; }
 
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
