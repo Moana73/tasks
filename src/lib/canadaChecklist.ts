@@ -39,10 +39,6 @@ function items(defs: ItemDef[]): ChecklistItem[] {
 const L = {
   arrival: { label: 'IRCC｜IEC: Prepare for arrival', url: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/work-canada/iec/prepare-arrival.html' },
   poe: { label: 'IRCC｜How long is my POE Letter valid?', url: 'https://ircc.canada.ca/english/helpcentre/answer.asp?qnum=846&top=15' },
-  account: { label: 'IRCC｜申請状況とメッセージの確認', url: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/application/check-status.html' },
-  eta: { label: 'IRCC｜eTA と就労・就学許可', url: 'https://ircc.canada.ca/english/helpcentre/answer.asp?qnum=1052&top=23' },
-  etaTool: { label: 'IRCC｜eTA 状況確認ツール', url: 'https://eta.onlineservices-servicesenligne.apps.cic.gc.ca/eta/applicationQuery?lang=en' },
-  etaFake: { label: 'IRCC｜本物の eTA か確かめるには', url: 'https://ircc.canada.ca/english/helpcentre/answer.asp?qnum=1232&top=16' },
   startWorking: { label: 'IRCC｜IEC: Start working in Canada', url: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/work-canada/iec/start-working.html' },
   workInCanada: { label: 'IRCC｜Work in Canada', url: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/work-canada.html' },
   sin: { label: 'Service Canada｜SIN for temporary residents', url: 'https://www.canada.ca/en/employment-social-development/services/sin/temporary-residents.html' },
@@ -74,35 +70,6 @@ const L = {
 } satisfies Record<string, Source>;
 
 export const SECTIONS: ChecklistSection[] = [
-  {
-    id: 'visa',
-    title: 'ワーホリ申請',
-    items: items([
-      { id: 'visa-wp', label: 'IEC 申請・Work Permit 承認', done: true },
-      {
-        id: 'visa-poe',
-        label: 'POE Letter 取得（有効期限 2027年5月ごろ）',
-        done: true,
-        how: [
-          'POE Letter に書かれた有効期限までにカナダに入国する。期限は延長できず、過ぎると申請し直しになる。',
-          'IRCC のアカウントにログインし、「Check status and messages」から開ける。印刷して手荷物に入れておく。',
-        ],
-        links: [L.poe, L.account],
-      },
-      {
-        id: 'visa-eta',
-        label: 'eTA に紐づくパスポートが今のパスポートか確認',
-        how: [
-          'IRCC のアカウントで POE Letter を開き、eTA の情報とパスポート番号を確かめる。',
-          'eTA は Work Permit を申請したときのパスポートに紐づいている。今のパスポートと番号が同じなら、そのまま使える。',
-          'パスポートを新しくした場合は、eTA を取り直す必要がある。',
-          '有効かどうかは IRCC の eTA 状況確認ツールでも確かめられる。eTA の番号と、パスポートの番号・発行国・発行日・有効期限を入れる。',
-          'canada.ca・gc.ca 以外の有料代行サイトは使わない。',
-        ],
-        links: [L.eta, L.etaTool, L.account, L.etaFake],
-      },
-    ]),
-  },
   {
     id: 'entry',
     title: '入国の条件をそろえる',
