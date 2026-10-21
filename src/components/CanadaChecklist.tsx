@@ -50,6 +50,13 @@ function Item({ item, onOpen }: { item: ChecklistItem; onOpen(id: string): void 
         <span className="cl-item-label">{item.label}</span>
         {note && <span className="cl-item-note">{note}</span>}
       </span>
+      {item.how.length > 0 && (
+        <span className="cl-item-more" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="m9.5 6 6 6-6 6" />
+          </svg>
+        </span>
+      )}
     </div>
   );
 }
@@ -78,28 +85,9 @@ function Section({
       </button>
       {open && (
         <div className="cl-section-body">
-          {section.notes && (
-            <div className="cl-notes">
-              {section.notes.map((n, i) => (
-                <p className="cl-note" key={i}>
-                  {n}
-                </p>
-              ))}
-            </div>
-          )}
           {section.items.map((it) => (
             <Item key={it.id} item={it} onOpen={onOpenItem} />
           ))}
-          {section.sources && section.sources.length > 0 && (
-            <div className="cl-sources">
-              <div className="cl-sources-title">出典</div>
-              {section.sources.map((s) => (
-                <a key={s.url} className="cl-source" href={s.url} target="_blank" rel="noopener noreferrer">
-                  {s.label}
-                </a>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </section>
@@ -159,13 +147,37 @@ function ItemSheet({ id, open, onClose }: { id: string | null; open: boolean; on
   };
 
   return (
-    <Sheet open={open} onClose={close} testid="cl-sheet" label="項目の結果メモ">
+    <Sheet open={open} onClose={close} testid="cl-sheet" label="やり方と結果メモ">
       {entry && (
         <>
           <div className="cl-sheet-head">
             <div className="cl-sheet-section">{entry.sectionTitle}</div>
             <div className="cl-sheet-label">{entry.item.label}</div>
           </div>
+          {(entry.item.how.length > 0 || entry.item.links.length > 0) && (
+            <div className="cl-how" data-sheet-scroll data-testid="cl-sheet-how">
+              {entry.item.how.length > 0 && (
+                <>
+                  <div className="cl-how-title">やり方</div>
+                  <ol className="cl-how-steps">
+                    {entry.item.how.map((h, i) => (
+                      <li key={i}>{h}</li>
+                    ))}
+                  </ol>
+                </>
+              )}
+              {entry.item.links.length > 0 && (
+                <div className="cl-sources">
+                  <div className="cl-sources-title">公式ページ</div>
+                  {entry.item.links.map((l) => (
+                    <a key={l.url} className="cl-source" href={l.url} target="_blank" rel="noopener noreferrer">
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           <textarea
             ref={ref}
             className="field"

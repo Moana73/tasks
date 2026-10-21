@@ -54,7 +54,8 @@ export function Sheet({ open, onClose, children, testid, label }: Props) {
 
   const down = (e: RPointerEvent<HTMLDivElement>) => {
     const t = e.target as HTMLElement;
-    if (t.closest('textarea, input, button')) return;
+    // 入力欄・ボタン・リンク・中でスクロールする領域では、下に引いて閉じる操作を始めない
+    if (t.closest('textarea, input, button, a, [data-sheet-scroll]')) return;
     st.current = { id: e.pointerId, y0: e.clientY, lastY: e.clientY, lastT: e.timeStamp, v: 0 };
   };
   const move = (e: RPointerEvent<HTMLDivElement>) => {
